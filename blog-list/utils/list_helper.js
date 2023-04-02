@@ -35,9 +35,27 @@ const mostBlogs = (blogs) => {
     return { author: author, blogs: groups[author].length }
 }
 
+function mostLikes(blogs) {
+    if(blogs.length <1){
+        return "List is empty"
+    }
+    const likesByAuthor = {}
+    blogs.forEach((blog) => {
+      if (!likesByAuthor[blog.author]) {
+        likesByAuthor[blog.author] = 0
+      }
+      likesByAuthor[blog.author] += blog.likes
+    })
+    const author = _.maxBy(_.keys(likesByAuthor), (author) => {
+      return likesByAuthor[author]
+    })
+    return { author: author, likes: likesByAuthor[author] }
+  }
+
 module.exports = {
     dummy,
     totalLikes,
     favoriteBlog,
-    mostBlogs
+    mostBlogs,
+    mostLikes
 }
