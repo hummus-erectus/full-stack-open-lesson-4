@@ -11,6 +11,7 @@
   "author": "Robert Grayson",
   "license": "ISC",
   "dependencies": {
+    "lodash": "^4.17.21",
     "nodemon": "^2.0.22"
   },
   "jest": {

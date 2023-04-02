@@ -8,6 +8,9 @@ const totalLikes = (blogs) => {
 }
 
 const favoriteBlog = (blogs) => {
+    if(blogs.length <1){
+        return "List is empty"
+    }
     let maxLikesBlog = blogs.reduce((acc, curr) => {
         return acc.likes > curr.likes ? acc : curr
     })
@@ -17,6 +20,10 @@ const favoriteBlog = (blogs) => {
         likes: maxLikesBlog.likes
     }
 }
+
+// const mostBlogs = (blogs) => {
+    
+// }
 
 module.exports = {
     dummy,
