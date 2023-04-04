@@ -71,6 +71,34 @@ test('if the likes property is missing, default to 0', async () => {
 
 }, 100000)
 
+test('if the title property is missing, respond with status 400', async () => {
+    const newBlog = {
+        author: "Purple Dave",
+        url: "www.manycats.org/nodogs",
+        likes: 42
+    }
+
+    await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+}, 100000)
+
+test('if the url property is missing, respond with status 400', async () => {
+    const newBlog = {
+        title: "Not enough squirrels",
+        author: "Nuts Abundance II",
+        likes: 24
+    }
+
+    await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+}, 100000)
+
 afterAll(async () => {
     await mongoose.connection.close()
 })
