@@ -45,11 +45,11 @@ test('A new blog can be added', async () => {
 
     const response = await api.get('/api/blogs')
 
-    const authors = response.body.map(r => r.author)
+    const titles = response.body.map(r => r.title)
 
     expect(response.body).toHaveLength(helper.initialBlogs.length + 1)
-    expect(authors).toContain(
-        'Mr Slut'
+    expect(titles).toContain(
+        "A new blog"
     )
 }, 100000)
 
@@ -98,6 +98,25 @@ test('if the url property is missing, respond with status 400', async () => {
     .expect(400)
 
 }, 100000)
+
+test('deletion succeeds with status code 204 if id is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+    const blogsAtEnd = await helper.blogsInDb()
+
+    expect(blogsAtEnd).toHaveLength(
+        helper.initialBlogs.length - 1
+    )
+
+    const titles = blogsAtEnd.map(r => r.content)
+
+    expect(titles).not.toContain(blogToDelete.title)
+})
 
 afterAll(async () => {
     await mongoose.connection.close()
