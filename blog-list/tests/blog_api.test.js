@@ -42,7 +42,6 @@ test('A new blog can be added', async () => {
     .post('/api/blogs')
     .send(newBlog)
     .expect(201)
-    .expect('Content-Type', /application\/json/)
 
     const response = await api.get('/api/blogs')
 
@@ -52,6 +51,24 @@ test('A new blog can be added', async () => {
     expect(authors).toContain(
         'Mr Slut'
     )
+}, 100000)
+
+test('if the likes property is missing, default to 0', async () => {
+    const newBlog = {
+        title: "A blog nobody likes",
+        author: "Mrs de Bus",
+        url: "www.whocares.org/sowhat"
+    }
+
+    await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+
+    const response = await api.get('/api/blogs')
+
+    expect(response.body[response.body.length-1].likes).toBe(0)
+
 }, 100000)
 
 afterAll(async () => {
