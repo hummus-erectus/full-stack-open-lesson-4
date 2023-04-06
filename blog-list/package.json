@@ -13,11 +13,13 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
+    "express-async-errors": "^3.1.1",
     "lodash": "^4.17.21",
     "nodemon": "^2.0.22"
   },
   "jest": {
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globalTeardown": "./tests/teardown.js"
   },
   "devDependencies": {
     "supertest": "^6.3.3"

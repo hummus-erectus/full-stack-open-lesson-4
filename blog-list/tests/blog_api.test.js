@@ -170,6 +170,111 @@ describe('when there is initially one user in db', () => {
         const usernames = usersAtEnd.map(u => u.username)
         expect(usernames).toContain(newUser.username)
     })
+
+    test('creation fails with proper status code and message if username already taken', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: 'root',
+            name: 'Matti Luukkainen',
+            password: 'salainen',
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(409)
+            .expect('Content-Type', /application\/json/)
+
+        expect(result.body.error).toContain('Username is already taken')
+
+        const usersAtEnd = await helper.usersInDb()
+        expect(usersAtEnd).toEqual(usersAtStart)
+    }, 100000)
+
+    test('creation fails with proper status code and message if username is not provided', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: '',
+            name: 'Matti Luukkainen',
+            password: 'salainen',
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        expect(result.body.error).toContain('User validation failed: username: Path `username` is required.')
+
+        const usersAtEnd = await helper.usersInDb()
+        expect(usersAtEnd).toEqual(usersAtStart)
+    }, 100000)
+
+    test('creation fails with proper status code and message if username is less than three characters in length', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: 'Te',
+            name: 'Matti Luukkainen',
+            password: 'salainen',
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        expect(result.body.error).toContain('shorter than the minimum allowed length')
+
+        const usersAtEnd = await helper.usersInDb()
+        expect(usersAtEnd).toEqual(usersAtStart)
+    }, 100000)
+
+    test('creation fails with proper status code and message if password is not provided', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: 'Testuser',
+            name: 'Matti Luukkainen',
+            password: '',
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        expect(result.body.error).toContain('You must provide a password')
+
+        const usersAtEnd = await helper.usersInDb()
+        expect(usersAtEnd).toEqual(usersAtStart)
+    }, 100000)
+
+    test('creation fails with proper status code and message if password is less than three characters in length', async () => {
+        const usersAtStart = await helper.usersInDb()
+
+        const newUser = {
+            username: 'Testuser',
+            name: 'Matti Luukkainen',
+            password: 'ab',
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+
+        expect(result.body.error).toContain('Password must be at least 3 characters')
+
+        const usersAtEnd = await helper.usersInDb()
+        expect(usersAtEnd).toEqual(usersAtStart)
+    }, 100000)
 })
 
 afterAll(async () => {
