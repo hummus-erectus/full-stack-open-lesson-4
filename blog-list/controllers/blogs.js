@@ -19,7 +19,7 @@ blogsRouter.get('/:id', async (request, response) => {
     }
   })
 
-  blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', async (request, response) => {
     const decodedToken = jwt.verify(request.token, config.SECRET)
     if (!decodedToken.id) {
         return response.status(401).json({ error: 'token invalid' })
@@ -41,13 +41,26 @@ blogsRouter.get('/:id', async (request, response) => {
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
-    // Use .populate() method to join the user information to the blog object
     const populatedBlog = await Blog.findById(savedBlog._id).populate('user', { username: 1, name: 1 })
 
     response.status(201).json(populatedBlog)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
+    const decodedToken = jwt.verify(request.token, config.SECRET)
+    if (!decodedToken.id) {
+        return response.status(401).json({ error: 'token invalid' })
+    }
+
+    const blog = await Blog.findById(request.params.id)
+    if (!blog) {
+        return response.status(404).end()
+    }
+
+    if (blog.user.toString() !== decodedToken.id.toString()) {
+        return response.status(401).json({ error: 'only the creator can delete the blog listing' })
+    }
+
     await Blog.findByIdAndRemove(request.params.id)
     response.status(204).end()
 })
