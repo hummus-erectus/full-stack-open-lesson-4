@@ -20,19 +20,21 @@ blogsRouter.get('/:id', async (request, response) => {
   })
 
 blogsRouter.post('/', async (request, response) => {
-    const decodedToken = jwt.verify(request.token, config.SECRET)
+    const user = request.user
+    const token = request.token
+    const body = request.body
+
+    const decodedToken = jwt.verify(token, config.SECRET)
     if (!decodedToken.id) {
         return response.status(401).json({ error: 'token invalid' })
     }
 
-    const user = await User.findById(decodedToken.id)
-
-    if(!request.body.title || !request.body.url){
+    if(!body.title || !body.url){
         return response.status(400).end()
     }
 
     const blog = new Blog({
-        ...request.body,
+        ...body,
         user: user._id
     })
 
@@ -47,7 +49,10 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-    const decodedToken = jwt.verify(request.token, config.SECRET)
+    const user = request.user
+    const token = request.token
+
+    const decodedToken = jwt.verify(token, config.SECRET)
     if (!decodedToken.id) {
         return response.status(401).json({ error: 'token invalid' })
     }
@@ -57,7 +62,7 @@ blogsRouter.delete('/:id', async (request, response) => {
         return response.status(404).end()
     }
 
-    if (blog.user.toString() !== decodedToken.id.toString()) {
+    if (blog.user.toString() !== user.id.toString()) {
         return response.status(401).json({ error: 'only the creator can delete the blog listing' })
     }
 
