@@ -33,6 +33,10 @@ blogsRouter.post('/', async (request, response) => {
         return response.status(400).end()
     }
 
+    if(!body.likes){
+        body.likes=0
+    }
+
     const blog = new Blog({
         ...body,
         user: user._id
