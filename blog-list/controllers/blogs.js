@@ -1,7 +1,7 @@
 const blogsRouter = require ('express').Router()
 const jwt = require('jsonwebtoken')
 const config = require("../utils/config")
-const middleware = require("../utils/middleware")
+// const { userExtractor } = require('../utils/middleware')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 
@@ -53,26 +53,24 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-    const user = request.user
-    const token = request.token
-
-    const decodedToken = jwt.verify(token, config.SECRET)
-    if (!decodedToken.id) {
-        return response.status(401).json({ error: 'token invalid' })
-    }
-
     const blog = await Blog.findById(request.params.id)
-    if (!blog) {
-        return response.status(404).end()
+
+    const user = request.user
+
+    if (!user || blog.user.toString() !== user.id.toString()) {
+      return response.status(401).json({ error: 'operation not permitted' })
     }
 
-    if (blog.user.toString() !== user.id.toString()) {
-        return response.status(401).json({ error: 'only the creator can delete the blog listing' })
-    }
+    // user.blogs.map(b => console.log( (b.toString() !== blog.id.toString() ), (b.toString())) )
+    user.blogs = user.blogs.filter(b => b.toString() !== blog.id.toString())
+    // console.log('blog.id.toString()', blog.id.toString())
 
-    await Blog.findByIdAndRemove(request.params.id)
+    await user.save()
+    await blog.remove()
+
     response.status(204).end()
-})
+
+  })
 
 blogsRouter.put('/:id', async (request, response) => {
     const body = request.body
